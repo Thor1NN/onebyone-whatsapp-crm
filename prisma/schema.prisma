@@ -49,6 +49,22 @@ model TelegramSession {
   @@map("telegram_sessions")
 }
 
+model TelegramUserSession {
+  id              String   @id @default(uuid())
+  apiId           String?
+  apiHash         String?
+  phoneNumber     String?
+  sessionString   String?
+  username        String?
+  firstName       String?
+  status          String   @default("NOT_CONNECTED")
+  lastConnected   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("telegram_user_sessions")
+}
+
 model Contact {
   id              String    @id @default(uuid())
   name            String?

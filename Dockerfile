@@ -28,21 +28,21 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install ALL deps (need devDeps for build)
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy prisma schema and generate client
 COPY prisma ./prisma
 RUN npx prisma generate
 
-# Copy rest of the app
+# Copy rest of the app and build
 COPY . .
-
-# Build Next.js
 RUN npm run build
+
+# Remove devDependencies after build to shrink image
+RUN npm prune --omit=dev
 
 EXPOSE 3000
 
-# Start with prisma migrate and then the app
-CMD npx prisma db push --skip-generate && npm run start
+CMD npx prisma db push --skip-generate && node prisma/seed-prod.js; npm run start

@@ -1,0 +1,8 @@
+node_modules
+.next
+.wwebjs_auth
+.wwebjs_cache
+dev.db
+dev.db-journal
+.env
+.env.local

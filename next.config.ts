@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: [
+    "whatsapp-web.js",
+    "puppeteer",
+    "bullmq",
+    "ioredis",
+    "node-telegram-bot-api",
+  ],
+  images: {
+    remotePatterns: [],
+  },
 };
 
 export default nextConfig;

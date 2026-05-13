@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("OPERATOR")
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  campaigns     Campaign[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model WhatsAppSession {
+  id               String   @id @default(uuid())
+  phoneNumber      String?
+  status           String   @default("NOT_CONNECTED")
+  sessionData      String?
+  lastConnected    DateTime?
+  lastDisconnected DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("whatsapp_sessions")
+}
+
+model TelegramSession {
+  id               String   @id @default(uuid())
+  botToken         String?
+  botUsername       String?
+  status           String   @default("NOT_CONNECTED")
+  lastConnected    DateTime?
+  lastDisconnected DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("telegram_sessions")
+}
+
+model Contact {
+  id              String    @id @default(uuid())
+  name            String?
+  phoneNumber     String    @unique
+  countryCode     String?
+  company         String?
+  custom1         String?
+  notes           String?
+  telegramChatId  String?
+  optInStatus     Boolean   @default(false)
+  optInSource     String?
+  optInDate       DateTime?
+  isBlacklisted   Boolean   @default(false)
+  blacklistDate   DateTime?
+  blacklistReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tags               ContactTag[]
+  campaignRecipients CampaignRecipient[]
+  messageLogs        MessageLog[]
+  incomingMessages   IncomingMessage[]
+
+  @@map("contacts")
+}
+
+model Tag {
+  id        String       @id @default(uuid())
+  name      String       @unique
+  color     String       @default("#6366f1")
+  createdAt DateTime     @default(now())
+
+  contacts  ContactTag[]
+
+  @@map("tags")
+}
+
+model ContactTag {
+  contactId String
+  tagId     String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@map("contact_tags")
+}
+
+model MessageTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  body      String
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaigns Campaign[]
+
+  @@map("message_templates")
+}
+
+model Campaign {
+  id                String   @id @default(uuid())
+  name              String
+  channel           String   @default("whatsapp")
+  status            String   @default("DRAFT")
+  messageBody       String
+  attachmentUrl     String?
+  attachmentType    String?
+  minDelay          Int      @default(30)
+  maxDelay          Int      @default(2700)
+  dailyLimit        Int      @default(100)
+  businessHoursOnly Boolean  @default(false)
+  businessHourStart String?  @default("10:00")
+  businessHourEnd   String?  @default("19:00")
+  lunchBreakStart   String?
+  lunchBreakEnd     String?
+  adminOverride     Boolean  @default(false)
+  scheduledStart    DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  totalRecipients   Int      @default(0)
+  sentCount         Int      @default(0)
+  failedCount       Int      @default(0)
+  skippedCount      Int      @default(0)
+  createdById       String
+  templateId        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  createdBy  User              @relation(fields: [createdById], references: [id])
+  template   MessageTemplate?  @relation(fields: [templateId], references: [id])
+  recipients CampaignRecipient[]
+  messageLogs MessageLog[]
+
+  @@map("campaigns")
+}
+
+model CampaignRecipient {
+  id           String    @id @default(uuid())
+  campaignId   String
+  contactId    String
+  status       String    @default("PENDING")
+  scheduledAt  DateTime?
+  sentAt       DateTime?
+  delayUsed    Int?
+  errorMessage String?
+  retryCount   Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact  Contact  @relation(fields: [contactId], references: [id])
+
+  @@unique([campaignId, contactId])
+  @@map("campaign_recipients")
+}
+
+model MessageLog {
+  id            String    @id @default(uuid())
+  campaignId    String?
+  contactId     String
+  channel       String    @default("whatsapp")
+  messageBody   String
+  status        String
+  whatsappMsgId String?
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  errorMessage  String?
+  delayUsed     Int?
+  createdAt     DateTime  @default(now())
+
+  campaign Campaign? @relation(fields: [campaignId], references: [id])
+  contact  Contact   @relation(fields: [contactId], references: [id])
+
+  @@map("message_logs")
+}
+
+model IncomingMessage {
+  id             String   @id @default(uuid())
+  contactId      String
+  channel        String   @default("whatsapp")
+  body           String
+  mediaUrl       String?
+  mediaType      String?
+  campaignSource String?
+  status         String   @default("NEW")
+  notes          String?
+  assignedTo     String?
+  receivedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@map("incoming_messages")
+}
+
+model Blacklist {
+  id          String   @id @default(uuid())
+  phoneNumber String   @unique
+  reason      String?
+  addedBy     String?
+  createdAt   DateTime @default(now())
+
+  @@map("blacklist")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String?
+  details    String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Settings {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("settings")
+}

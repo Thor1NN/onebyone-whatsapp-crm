@@ -2,48 +2,56 @@
 
 @layer base {
   :root {
+    /* Modern white theme — clean SaaS look */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 222 14% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 14% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 142 76% 36%;
-    --primary-foreground: 355 7% 97%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 76% 36%;
-    --radius: 0.5rem;
+    --popover-foreground: 222 14% 14%;
+    /* Primary: refined emerald */
+    --primary: 152 65% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 10% 22%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 10% 22%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 152 65% 38%;
+    --radius: 0.625rem;
+
+    /* App-specific */
+    --app-bg: 220 20% 98%;
+    --sidebar-bg: 0 0% 100%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 222 14% 8%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 5.9%;
+    --card: 222 14% 11%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 5.9%;
+    --popover: 222 14% 11%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142 76% 36%;
-    --primary-foreground: 355 7% 97%;
-    --secondary: 240 3.7% 15.9%;
+    --primary: 152 65% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 14% 16%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --muted: 222 14% 16%;
+    --muted-foreground: 220 9% 64%;
+    --accent: 222 14% 16%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 142 76% 36%;
+    --border: 222 14% 18%;
+    --input: 222 14% 18%;
+    --ring: 152 65% 42%;
+    --app-bg: 222 14% 8%;
+    --sidebar-bg: 222 14% 10%;
   }
 }
 
@@ -67,6 +75,8 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-app-bg: hsl(var(--app-bg));
+  --color-sidebar-bg: hsl(var(--sidebar-bg));
   --radius: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -76,8 +86,49 @@
   * {
     border-color: hsl(var(--border));
   }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+  body {
+    background-color: hsl(var(--app-bg));
+    color: hsl(var(--foreground));
+    letter-spacing: -0.01em;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  }
+  .shadow-card {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 6px -1px rgb(0 0 0 / 0.04);
+  }
+  .ring-soft {
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.05);
+  }
+}
+
+/* Smooth scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+  background-clip: padding-box;
+  border: 2px solid transparent;
 }
